@@ -1,0 +1,134 @@
+{
+ "actions": [],
+ "autoname": "format:SES-{########}",
+ "creation": "2026-07-24 05:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "session_id",
+  "user",
+  "status",
+  "cb1",
+  "started_at",
+  "last_activity",
+  "sb_stats",
+  "message_count",
+  "tokens_total",
+  "cb2",
+  "escalated",
+  "quality_score",
+  "sb_messages",
+  "messages"
+ ],
+ "fields": [
+  {
+   "fieldname": "session_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "معرّف الجلسة",
+   "read_only": 1,
+   "search_index": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "المستخدم",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "الحالة",
+   "options": "Active\nClosed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "started_at",
+   "fieldtype": "Datetime",
+   "label": "بدأت في",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_activity",
+   "fieldtype": "Datetime",
+   "label": "آخر نشاط",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_stats",
+   "fieldtype": "Section Break",
+   "label": "إحصاءات"
+  },
+  {
+   "fieldname": "message_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "عدد الرسائل",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tokens_total",
+   "fieldtype": "Int",
+   "label": "إجمالي التوكن",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "escalated",
+   "fieldtype": "Check",
+   "label": "صُعِّدت لتذكرة",
+   "read_only": 1
+  },
+  {
+   "fieldname": "quality_score",
+   "fieldtype": "Float",
+   "label": "نقطة الجودة",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_messages",
+   "fieldtype": "Section Break",
+   "label": "الرسائل"
+  },
+  {
+   "description": "JSON: [{role, content, ts}]",
+   "fieldname": "messages",
+   "fieldtype": "Long Text",
+   "label": "الرسائل (JSON)",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "links": [],
+ "modified": "2026-07-24 05:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Mubtkir AI",
+ "name": "AI Session",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

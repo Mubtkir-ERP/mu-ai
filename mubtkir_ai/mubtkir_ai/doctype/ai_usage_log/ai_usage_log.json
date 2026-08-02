@@ -1,0 +1,105 @@
+{
+ "actions": [],
+ "autoname": "format:USG-{########}",
+ "creation": "2026-07-24 03:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "feature",
+  "model",
+  "cb1",
+  "session_id",
+  "cost_usd",
+  "sb_tokens",
+  "prompt_tokens",
+  "completion_tokens",
+  "cb2",
+  "cached_tokens",
+  "total_tokens"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "المستخدم",
+   "options": "User"
+  },
+  {
+   "fieldname": "feature",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "الميزة",
+   "options": "chat\nembedding"
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "النموذج"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "session_id",
+   "fieldtype": "Data",
+   "label": "الجلسة"
+  },
+  {
+   "fieldname": "cost_usd",
+   "fieldtype": "Float",
+   "label": "التكلفة التقديرية ($)",
+   "precision": "6"
+  },
+  {
+   "fieldname": "sb_tokens",
+   "fieldtype": "Section Break",
+   "label": "التوكن"
+  },
+  {
+   "fieldname": "prompt_tokens",
+   "fieldtype": "Int",
+   "label": "توكن الإدخال"
+  },
+  {
+   "fieldname": "completion_tokens",
+   "fieldtype": "Int",
+   "label": "توكن الإخراج"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cached_tokens",
+   "fieldtype": "Int",
+   "label": "توكن مخزّن (كاش)"
+  },
+  {
+   "fieldname": "total_tokens",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "الإجمالي"
+  }
+ ],
+ "in_create": 1,
+ "links": [],
+ "modified": "2026-07-24 03:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Mubtkir AI",
+ "name": "AI Usage Log",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "read": 1,
+   "role": "System Manager"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

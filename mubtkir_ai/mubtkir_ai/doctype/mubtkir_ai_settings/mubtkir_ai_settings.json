@@ -1,0 +1,115 @@
+{
+ "actions": [],
+ "creation": "2026-07-24 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sb_model",
+  "provider",
+  "model",
+  "api_key",
+  "cb_model",
+  "streaming",
+  "enable_prompt_caching",
+  "embedding_model",
+  "enable_floating_widget",
+  "enable_write_actions",
+  "sb_prompt",
+  "system_prompt"
+ ],
+ "fields": [
+  {
+   "fieldname": "sb_model",
+   "fieldtype": "Section Break",
+   "label": "إعداد النموذج"
+  },
+  {
+   "default": "anthropic",
+   "fieldname": "provider",
+   "fieldtype": "Select",
+   "label": "المزوّد",
+   "options": "anthropic\nopenai\ngemini"
+  },
+  {
+   "default": "claude-haiku-4-5",
+   "description": "مثال: claude-haiku-4-5 أو gpt-4o-mini أو gemini/gemini-1.5-flash",
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "النموذج"
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "مفتاح API"
+  },
+  {
+   "fieldname": "cb_model",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "streaming",
+   "fieldtype": "Check",
+   "label": "بثّ تدريجي (Streaming)"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_prompt_caching",
+   "fieldtype": "Check",
+   "label": "تفعيل التخزين المؤقت للطلبات"
+  },
+  {
+   "default": "text-embedding-3-small",
+   "description": "نموذج المتجهات للبحث الدلالي (OpenAI)",
+   "fieldname": "embedding_model",
+   "fieldtype": "Data",
+   "label": "نموذج المتجهات (Embeddings)"
+  },
+  {
+   "default": "1",
+   "description": "أيقونة عائمة أسفل الشاشة تفتح المساعد فوق أي صفحة",
+   "fieldname": "enable_floating_widget",
+   "fieldtype": "Check",
+   "label": "تفعيل المساعد العائم"
+  },
+  {
+   "default": "0",
+   "description": "السماح للمساعد بإنشاء مستندات (أصناف، فواتير…) بطلب من المستخدم. الإنشاء كمسودة فقط وضمن صلاحيات المستخدم، ويسأل عن التفاصيل الناقصة قبل الإنشاء.",
+   "fieldname": "enable_write_actions",
+   "fieldtype": "Check",
+   "label": "تفعيل الإنشاء عبر المساعد"
+  },
+  {
+   "fieldname": "sb_prompt",
+   "fieldtype": "Section Break",
+   "label": "التعليمات"
+  },
+  {
+   "default": "أنت مساعد ذكي داخل نظام ERPNext تابع لمنصة مُبتكِر. أجب بإيجاز ودقّة، وبنفس لغة سؤال المستخدم. إن لم تعرف الإجابة فقل ذلك بوضوح.",
+   "fieldname": "system_prompt",
+   "fieldtype": "Small Text",
+   "label": "System Prompt"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-07-24 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Mubtkir AI",
+ "name": "Mubtkir AI Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

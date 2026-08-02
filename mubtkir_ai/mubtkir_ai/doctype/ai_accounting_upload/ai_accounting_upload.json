@@ -1,0 +1,145 @@
+{
+ "actions": [],
+ "autoname": "format:ACU-{####}",
+ "creation": "2026-07-26 01:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "file",
+  "bank_account",
+  "cb1",
+  "company",
+  "status",
+  "sb_result",
+  "journal_entry",
+  "txn_count",
+  "cb2",
+  "total_in",
+  "total_out",
+  "sb_detail",
+  "transactions_preview",
+  "error_message"
+ ],
+ "fields": [
+  {
+   "description": "كشف حساب بنكي بصيغة CSV أو Excel — الأعمدة: التاريخ، البيان، مدين/دائن (أو المبلغ)",
+   "fieldname": "file",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "ملف الكشف",
+   "reqd": 1
+  },
+  {
+   "description": "حساب البنك/الصندوق الذي يخصه الكشف",
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "حساب البنك",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "الشركة",
+   "options": "Company"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "الحالة",
+   "options": "Pending\nProcessing\nProcessed\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_result",
+   "fieldtype": "Section Break",
+   "label": "النتيجة"
+  },
+  {
+   "description": "القيد المُنشأ كمسودة — راجعه ورحّله بنفسك",
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "قيد اليومية (مسودة)",
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "txn_count",
+   "fieldtype": "Int",
+   "label": "عدد الحركات",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_in",
+   "fieldtype": "Currency",
+   "label": "إجمالي الوارد",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_out",
+   "fieldtype": "Currency",
+   "label": "إجمالي الصادر",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_detail",
+   "fieldtype": "Section Break",
+   "label": "التفاصيل"
+  },
+  {
+   "description": "الحركات المستخرجة والحساب المقترح لكل حركة (JSON)",
+   "fieldname": "transactions_preview",
+   "fieldtype": "Long Text",
+   "label": "الحركات",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error_message",
+   "fieldtype": "Small Text",
+   "label": "رسالة الخطأ",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-07-26 01:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Mubtkir AI",
+ "name": "AI Accounting Upload",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

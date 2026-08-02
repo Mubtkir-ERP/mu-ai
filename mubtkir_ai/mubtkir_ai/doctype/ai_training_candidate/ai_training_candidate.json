@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "autoname": "format:TRC-{########}",
+ "creation": "2026-07-24 05:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "session",
+  "status",
+  "cb1",
+  "quality_score",
+  "exported",
+  "sb_review",
+  "approved_by",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "session",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "الجلسة",
+   "options": "AI Session",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Pending Review",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "الحالة",
+   "options": "Pending Review\nApproved\nRejected"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quality_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "نقطة الجودة",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "exported",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "صُدِّر",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_review",
+   "fieldtype": "Section Break",
+   "label": "المراجعة"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "اعتمده",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "ملاحظات"
+  }
+ ],
+ "links": [],
+ "modified": "2026-07-24 05:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Mubtkir AI",
+ "name": "AI Training Candidate",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

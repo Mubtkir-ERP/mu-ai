@@ -1,0 +1,94 @@
+{
+ "actions": [],
+ "autoname": "format:KB-{####}",
+ "creation": "2026-07-24 02:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "status",
+  "cb1",
+  "chunks_count",
+  "indexed_at",
+  "sb_content",
+  "source_file",
+  "content"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "العنوان",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "الحالة",
+   "options": "Draft\nIndexing\nIndexed\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "chunks_count",
+   "fieldtype": "Int",
+   "label": "عدد المقاطع",
+   "read_only": 1
+  },
+  {
+   "fieldname": "indexed_at",
+   "fieldtype": "Datetime",
+   "label": "وقت الفهرسة",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_content",
+   "fieldtype": "Section Break",
+   "label": "المحتوى"
+  },
+  {
+   "description": "ارفع ملف التوثيق (md أو txt) — سيُقرأ محتواه ويُفهرس تلقائيًا عند الحفظ. مثالي لأدلة التطبيقات المخصصة.",
+   "fieldname": "source_file",
+   "fieldtype": "Attach",
+   "label": "ملف التوثيق"
+  },
+  {
+   "description": "أو اكتب/الصق المحتوى يدويًا هنا. عند رفع ملف جديد يُملأ هذا الحقل من الملف.",
+   "fieldname": "content",
+   "fieldtype": "Long Text",
+   "label": "النص"
+  }
+ ],
+ "links": [],
+ "modified": "2026-07-24 02:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Mubtkir AI",
+ "name": "AI Knowledge Source",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1
+}

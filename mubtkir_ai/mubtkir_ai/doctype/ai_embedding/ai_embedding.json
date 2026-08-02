@@ -1,0 +1,67 @@
+{
+ "actions": [],
+ "autoname": "format:EMB-{########}",
+ "creation": "2026-07-24 02:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "source",
+  "source_title",
+  "chunk_index",
+  "chunk_text",
+  "chunk_text_norm"
+ ],
+ "fields": [
+  {
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "المصدر",
+   "options": "AI Knowledge Source",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "source_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "عنوان المصدر"
+  },
+  {
+   "fieldname": "chunk_index",
+   "fieldtype": "Int",
+   "label": "رقم المقطع"
+  },
+  {
+   "fieldname": "chunk_text",
+   "fieldtype": "Long Text",
+   "label": "نص المقطع"
+  },
+  {
+   "description": "نسخة مطبَّعة عربيًا لبحث الكلمات",
+   "fieldname": "chunk_text_norm",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "النص المطبَّع"
+  }
+ ],
+ "in_create": 1,
+ "links": [],
+ "modified": "2026-07-24 02:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Mubtkir AI",
+ "name": "AI Embedding",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
