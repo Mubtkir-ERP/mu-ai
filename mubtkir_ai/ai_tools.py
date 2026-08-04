@@ -133,6 +133,37 @@ TOOL_SCHEMAS = [
 	{
 		"type": "function",
 		"function": {
+			"name": "aggregate_documents",
+			"description": (
+				"Group and aggregate documents: 'which X appears most', totals per "
+				"customer/item/status, top-N breakdowns. "
+				"For items inside invoices use the CHILD table: "
+				"doctype='Sales Invoice Item', group_by='item_code', "
+				"parent_doctype='Sales Invoice' (items are NOT fields on the "
+				"invoice itself). Same pattern: Purchase Invoice Item, "
+				"Sales Order Item. aggregate='count' for frequency, 'sum' with "
+				"aggregate_field (e.g. qty or amount) for totals per group. "
+				"Only submitted parent documents are counted. "
+				"Do NOT invent filters the user did not ask for."
+			),
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"doctype": {"type": "string", "description": "DocType or child table, e.g. 'Sales Invoice Item'"},
+					"group_by": {"type": "string", "description": "Field to group by, e.g. 'item_code'"},
+					"aggregate": {"type": "string", "enum": ["count", "sum"], "description": "Default count"},
+					"aggregate_field": {"type": "string", "description": "Numeric field to sum (required for sum)"},
+					"parent_doctype": {"type": "string", "description": "Required for child tables, e.g. 'Sales Invoice'"},
+					"filters": {"type": "object"},
+					"limit": {"type": "integer", "description": "Top N groups (default 10, max 50)"},
+				},
+				"required": ["doctype", "group_by"],
+			},
+		},
+	},
+	{
+		"type": "function",
+		"function": {
 			"name": "generate_report",
 			"description": (
 				"Build a tabular report EXACTLY as the user requested it. "
@@ -376,7 +407,98 @@ def sum_field(doctype, field, filters=None):
 
 MAX_REPORT_ROWS = 500
 DEFAULT_REPORT_ROWS = 100
+MAX_GROUPS = 50
 _NUMERIC_FIELDTYPES = ("Currency", "Float", "Int")
+
+
+def _validated_field(meta, fieldname, numeric=False):
+	"""A fieldname that provably exists on the doctype (SQL-injection gate)."""
+	if not (isinstance(fieldname, str) and _FIELD_RE.match(fieldname)):
+		return None
+	df = meta.get_field(fieldname)
+	if not df and fieldname != "name":
+		return None
+	if numeric and (not df or df.fieldtype not in _NUMERIC_FIELDTYPES):
+		return None
+	return fieldname
+
+
+def aggregate_documents(
+	doctype, group_by, aggregate="count", aggregate_field=None, parent_doctype=None, filters=None, limit=10
+):
+	"""GROUP BY aggregation over a doctype or a child table.
+
+	Child tables carry no permissions of their own, so access is gated on
+	READ permission of the parent doctype, and rows are joined to SUBMITTED
+	parents only. All identifiers are validated against meta before they
+	reach SQL; values are always parameterized.
+	"""
+	if not frappe.db.exists("DocType", doctype):
+		frappe.throw(f"DocType غير موجود: {doctype}")
+	meta = frappe.get_meta(doctype)
+	limit = min(int(limit or 10), MAX_GROUPS)
+
+	group_field = _validated_field(meta, group_by)
+	if not group_field:
+		return {"error": f"حقل التجميع {group_by} غير موجود في {doctype}"}
+
+	sum_field_name = None
+	if aggregate == "sum":
+		sum_field_name = _validated_field(meta, aggregate_field, numeric=True)
+		if not sum_field_name:
+			return {
+				"error": f"حقل الجمع {aggregate_field} غير موجود أو ليس رقميًا",
+				"numeric_fields": _numeric_field_catalog(doctype),
+			}
+
+	select_agg = f"SUM(c.`{sum_field_name}`)" if sum_field_name else "COUNT(*)"
+
+	if meta.istable:
+		# Child table: permission comes from the parent doctype.
+		if not parent_doctype or not frappe.db.exists("DocType", parent_doctype):
+			return {
+				"error": "الجداول الفرعية تتطلب parent_doctype صحيحًا",
+				"hint": "e.g. doctype='Sales Invoice Item' -> parent_doctype='Sales Invoice'",
+			}
+		if not frappe.has_permission(parent_doctype, "read"):
+			frappe.throw(f"لا تملك صلاحية قراءة {parent_doctype}")
+
+		parent_meta = frappe.get_meta(parent_doctype)
+		docstatus_cond = "AND p.docstatus = 1" if parent_meta.is_submittable else ""
+		rows = frappe.db.sql(
+			f"""SELECT c.`{group_field}` AS value, {select_agg} AS total
+				FROM `tab{doctype}` c
+				JOIN `tab{parent_doctype}` p ON c.parent = p.name AND c.parenttype = %s
+				WHERE 1=1 {docstatus_cond}
+				GROUP BY c.`{group_field}`
+				ORDER BY total DESC
+				LIMIT {limit}""",
+			(parent_doctype,),
+			as_dict=True,
+		)
+		scope_note = f"submitted {parent_doctype} documents only"
+	else:
+		if not frappe.has_permission(doctype, "read"):
+			frappe.throw(f"لا تملك صلاحية قراءة {doctype}")
+		normalized = _with_default_filters(doctype, filters)
+		agg_alias = f"sum(`{sum_field_name}`) as total" if sum_field_name else "count(name) as total"
+		rows = frappe.get_list(
+			doctype,
+			filters=normalized,
+			fields=[f"`{group_field}` as value", agg_alias],
+			group_by=f"`tab{doctype}`.`{group_field}`",
+			order_by="total desc",
+			limit_page_length=limit,
+		)
+		scope_note = f"filters: {normalized}"
+
+	return {
+		"doctype": doctype,
+		"group_by": group_field,
+		"aggregate": "sum:" + sum_field_name if sum_field_name else "count",
+		"groups": rows,
+		"scope": scope_note,
+	}
 
 # Frequent Arabic column names -> canonical fieldnames. Checked before the
 # meta-label match so the most common requests resolve deterministically.
@@ -641,6 +763,7 @@ _EXECUTORS = {
 	"list_documents": list_documents,
 	"get_document": get_document,
 	"sum_field": sum_field,
+	"aggregate_documents": aggregate_documents,
 	"generate_report": generate_report,
 	"create_document": create_document,
 	"create_support_ticket": create_support_ticket,
