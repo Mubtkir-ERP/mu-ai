@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.DS_Store
+node_modules/
+mubtkir_ai/public/dist/
+*.log
+.vscode/
