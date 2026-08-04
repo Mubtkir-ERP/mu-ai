@@ -110,7 +110,14 @@ TOOL_SCHEMAS = [
 			"description": (
 				"Sum a numeric field over permitted documents. "
 				"Call for totals: 'كم إجمالي مبيعات هذا الشهر' -> "
-				"doctype='Sales Invoice', field='grand_total', posting_date filter."
+				"doctype='Sales Invoice', field='grand_total', posting_date filter. "
+				"Tax total field on invoices is 'total_taxes_and_charges'. "
+				"Submittable doctypes default to SUBMITTED docs only (docstatus=1); "
+				"pass {'docstatus': 0} explicitly for drafts. "
+				"If the result contains numeric_fields, retry with one of them. "
+				"Mention in your answer that totals cover submitted documents. "
+				"Do NOT invent filters (especially date ranges) the user did not "
+				"explicitly ask for — 'كامل/الكل' means NO date filter at all."
 			),
 			"parameters": {
 				"type": "object",
@@ -236,6 +243,49 @@ def _safe_fields(fields):
 	return valid or ["name"]
 
 
+def _normalize_filters(filters):
+	"""Accept both Frappe's list-form and the Mongo-style object-form.
+
+	Models frequently emit {"posting_date": {"between": [a, b]}} instead of
+	{"posting_date": ["between", [a, b]]}; the former crashes db_query, so
+	single-operator dicts are converted rather than rejected.
+	"""
+	out = {}
+	for field, cond in (filters or {}).items():
+		if isinstance(cond, dict) and len(cond) == 1:
+			op, value = next(iter(cond.items()))
+			out[field] = [op, value]
+		else:
+			out[field] = cond
+	return out
+
+
+def _with_default_filters(doctype, filters):
+	"""Normalize filters, then default to SUBMITTED docs for submittable
+	doctypes.
+
+	Financial questions ("كم مجموع الفواتير") must reflect the books —
+	drafts and cancelled documents silently inflating totals is a
+	correctness bug. The model can still pass an explicit docstatus
+	filter to inspect drafts (documented in the tool descriptions).
+	"""
+	filters = _normalize_filters(filters)
+	if "docstatus" not in filters and frappe.get_meta(doctype).is_submittable:
+		filters["docstatus"] = 1
+	return filters
+
+
+def _numeric_field_catalog(doctype, limit=20):
+	"""{fieldname, label} for numeric fields — lets the model self-correct."""
+	catalog = []
+	for df in frappe.get_meta(doctype).fields:
+		if df.fieldtype in ("Currency", "Float", "Int"):
+			catalog.append({"fieldname": df.fieldname, "label": df.label or df.fieldname})
+			if len(catalog) >= limit:
+				break
+	return catalog
+
+
 def _serialize(data):
 	text = json.dumps(data, ensure_ascii=False, default=str)
 	if len(text) > MAX_RESULT_CHARS:
@@ -265,24 +315,26 @@ def reset_artifacts():
 
 def count_documents(doctype, filters=None):
 	_check_doctype(doctype)
+	filters = _with_default_filters(doctype, filters)
 	# get_list applies user permissions; capped so huge tables stay cheap.
-	rows = frappe.get_list(doctype, filters=filters or {}, fields=["name"], limit_page_length=1001)
+	rows = frappe.get_list(doctype, filters=filters, fields=["name"], limit_page_length=1001)
 	n = len(rows)
-	return {"doctype": doctype, "count": n if n <= 1000 else "1000+"}
+	return {"doctype": doctype, "count": n if n <= 1000 else "1000+", "filters_used": filters}
 
 
 def list_documents(doctype, filters=None, fields=None, order_by=None, limit=10):
 	_check_doctype(doctype)
 	if order_by and not _ORDER_BY_RE.match(order_by):
 		order_by = None
+	filters = _with_default_filters(doctype, filters)
 	rows = frappe.get_list(
 		doctype,
-		filters=filters or {},
+		filters=filters,
 		fields=_safe_fields(fields),
 		order_by=order_by or "modified desc",
 		limit_page_length=min(int(limit or 10), MAX_ROWS),
 	)
-	return {"doctype": doctype, "rows": rows, "returned": len(rows)}
+	return {"doctype": doctype, "rows": rows, "returned": len(rows), "filters_used": filters}
 
 
 def get_document(doctype, name):
@@ -296,10 +348,30 @@ def get_document(doctype, name):
 
 def sum_field(doctype, field, filters=None):
 	_check_doctype(doctype)
-	if not _FIELD_RE.match(field or ""):
-		frappe.throw("اسم حقل غير صالح")
-	rows = frappe.get_list(doctype, filters=filters or {}, fields=[f"sum(`{field}`) as total"])
-	return {"doctype": doctype, "field": field, "total": (rows[0].get("total") if rows else 0) or 0}
+	meta = frappe.get_meta(doctype)
+	df = meta.get_field(field or "")
+	if not _FIELD_RE.match(field or "") or not df or df.fieldtype not in _NUMERIC_FIELDTYPES:
+		# Recoverable: hand the model the real numeric fields to retry with.
+		return {
+			"error": f"الحقل {field} غير موجود أو ليس رقميًا في {doctype}",
+			"numeric_fields": _numeric_field_catalog(doctype),
+			"hint": "Call sum_field again with a fieldname from numeric_fields.",
+		}
+
+	filters = _with_default_filters(doctype, filters)
+	rows = frappe.get_list(
+		doctype,
+		filters=filters,
+		fields=[f"sum(`{field}`) as total", "count(name) as rows_counted"],
+	)
+	row = rows[0] if rows else {}
+	return {
+		"doctype": doctype,
+		"field": field,
+		"total": row.get("total") or 0,
+		"rows_counted": row.get("rows_counted") or 0,
+		"filters_used": filters,
+	}
 
 
 MAX_REPORT_ROWS = 500
@@ -401,9 +473,10 @@ def generate_report(title, doctype, columns, filters=None, order_by=None, limit=
 	if order_by and not _ORDER_BY_RE.match(order_by):
 		order_by = None
 
+	filters = _with_default_filters(doctype, filters)
 	rows = frappe.get_list(
 		doctype,
-		filters=filters or {},
+		filters=filters,
 		fields=valid,
 		order_by=order_by or "modified desc",
 		limit_page_length=min(int(limit or DEFAULT_REPORT_ROWS), MAX_REPORT_ROWS),

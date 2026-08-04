@@ -66,7 +66,8 @@ def run_tools():
 
 	return {
 		"db_truth": {
-			"sales_invoices": frappe.db.count("Sales Invoice"),
+			# Tools default to submitted-only for submittable doctypes
+			"sales_invoices": frappe.db.count("Sales Invoice", {"docstatus": 1}),
 			"customers": frappe.db.count("Customer"),
 		},
 		"count_answer": chat.get_reply("smoke-tools", "كم عدد فواتير المبيعات؟ أجب برقم."),

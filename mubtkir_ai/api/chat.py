@@ -139,8 +139,14 @@ def get_reply(session_id, text, history=None, page_context=None):
 		ai_tools._artifacts()["transcript"] = _build_transcript(history, text)
 
 		# Volatile per-turn context (date, current page) lives in the user
-		# turn so the cached system prefix stays stable.
-		context_lines = [f"(تاريخ اليوم: {nowdate()})"]
+		# turn so the cached system prefix stays stable. The date line carries
+		# its own counter-instruction: models otherwise turn it into an
+		# unrequested date filter on "total/all" questions.
+		context_lines = [
+			f"(تاريخ اليوم: {nowdate()} — للمرجعية فقط. "
+			"لا تستخدم أي فلتر تواريخ في الأدوات إلا إذا طلب المستخدم فترة زمنية صراحة؛ "
+			"«كامل/الكل/جميع» تعني بلا فلتر تاريخ إطلاقًا)"
+		]
 		page_line = _format_page_context(page_context)
 		if page_line:
 			context_lines.append(f"({page_line})")
